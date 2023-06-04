@@ -111,6 +111,10 @@ class Parser:
         matches = re.finditer(facebook_regex_pattern, html_page_content)
         return {"facebook_urls": [match.group() for match in matches]}
 
+    # You can add all the extractor methods you want here
+    # Don't forget to add the @set_func_headers decorator to each method
+    # And to match the return type of the method with the headers you set in the decorator
+
     def __get_extractors_in_order(self):
         """
            Get all the extractor methods that are part of the Parser class
