@@ -5,21 +5,15 @@ from utils.Parser import Parser
 from utils.Crawler import Crawler
 
 INPUT_FILE = "./data/sample.csv"
-OUTPUT_FILE = "./run/extracted_data.csv"
-LOGGER_FILE = "./run/logs.log"
-PROGRESSION_FILE = "./run/progression.txt"
 
-my_crawler = Crawler(
-    Parser(),
-    INPUT_FILE,
-    output_file=OUTPUT_FILE,
-    logger=LOGGER_FILE,
-    crawling_progression=PROGRESSION_FILE,
-)
+my_crawler = Crawler(Parser(), INPUT_FILE)
 
 try:
-    my_crawler.crawl()
+    # You can play with the limit
+    my_crawler.crawl(limit=5)
 except Exception as e:
     print(f"Something went wrong while crawling: {e}")
 finally:
+    # Saves the progression.
+    # If you execute the code again, you'll pick up where you left off
     my_crawler.save()

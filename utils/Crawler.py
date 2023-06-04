@@ -35,21 +35,24 @@ class Crawler:
         """
         self.crawling_progression_ = output_folder + "progression.txt"
 
-        # We look for a crawling_progression_ file
-        try:
-            # If one is found we load it
-            with open(self.crawling_progression_, "rb") as file:
-                unpickler = pk.Unpickler(file)
-                self.__dict__ = unpickler.load()
-        except FileNotFoundError:
-            # Otherwise we set the attributes to their default values
-            self.index_ = -1
-            self.rate_limit = rate_limit
-            self.parser = parser
-            self.output_file_ = output_folder + "extracted_data.csv"
-            self.logger_ = output_folder + "logs.log"
-            self.header_indexes_ = self.__compute_header_indexes()
-            self.__set_input_file(input_file)
+        if parser is None or input_file is None:
+            try:
+                self.__load()
+            except FileNotFoundError:
+                print(
+                    "You did not perform a crawling before. Please provide a parser and an input file."
+                )
+        else:
+            try:
+                self.__load()
+            except FileNotFoundError:
+                self.index_ = -1
+                self.parser = parser
+                self.output_file_ = output_folder + "extracted_data.csv"
+                self.logger_ = output_folder + "logs.log"
+                self.rate_limit = rate_limit
+                self.header_indexes_ = self.__compute_header_indexes()
+                self.__set_input_file(input_file)
 
     def __set_input_file(self, input_file):
         """
@@ -91,7 +94,7 @@ class Crawler:
             print(f"{website} - {outcome}")
 
         # We keep only the first part of the date
-        now = str(datetime.datetime.now()).split(".")[0]
+        now = str(datetime.datetime.now()).split(".", maxsplit=1)[0]
         with open(self.logger_, "a", newline="\n", encoding="utf-8") as logger:
             logger.write(f"{website} , {outcome} , {now}\n")
 
@@ -220,6 +223,14 @@ class Crawler:
                         # Pause for the rate limit if needed
                         if self.rate_limit:
                             time.sleep(self.rate_limit)
+
+    def __load(self):
+        """
+        Loads the crawling progression from a pickle file.
+        """
+        with open(self.crawling_progression_, "rb") as file:
+            unpickler = pk.Unpickler(file)
+            self.__dict__.update(unpickler.load())
 
     def save(self):
         """
